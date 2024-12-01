@@ -1,3 +1,15 @@
+def deployToK8s(String namespace) {
+    sh """
+        rm -Rf .kube
+        mkdir .kube
+        cat \$KUBECONFIG > .kube/config
+        cp fastapi/values.yaml values.yml
+        sed -i "s+tag.*+tag: ${DOCKER_TAG}+g" values.yml
+        kubectl get namespace ${namespace} || kubectl create namespace ${namespace}
+        helm upgrade --install app fastapi --values=values.yml --namespace ${namespace}
+    """
+}
+
 pipeline {
     agent any
     environment {
@@ -80,17 +92,5 @@ pipeline {
                 }
             }
         }
-    }
-
-    def deployToK8s(String namespace) {
-        sh """
-            rm -Rf .kube
-            mkdir .kube
-            cat \$KUBECONFIG > .kube/config
-            cp fastapi/values.yaml values.yml
-            sed -i "s+tag.*+tag: ${DOCKER_TAG}+g" values.yml
-            kubectl get namespace ${namespace} || kubectl create namespace ${namespace}
-            helm upgrade --install app fastapi --values=values.yml --namespace ${namespace}
-        """
     }
 }
