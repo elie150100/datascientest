@@ -3,8 +3,8 @@ pipeline {
     environment {
         DOCKER_COMPOSE_FILE = "${WORKSPACE}/docker-compose.yml"
         DOCKER_ID = "eliedatasctst"
-        MOVIE_SERVICE_IMAGE = "${DOCKER_ID}/movie-service"
-        CAST_SERVICE_IMAGE = "${DOCKER_ID}/cast-service"
+        MOVIE_SERVICE_IMAGE = "${DOCKER_ID}/try/movie-service"
+        CAST_SERVICE_IMAGE = "${DOCKER_ID}/try/cast-service"
         DOCKER_TAG = "v.${BUILD_NUMBER}.0"
         DOCKER_CREDENTIALS = credentials('DOCKER_HUB_PASS')
     }
@@ -76,21 +76,21 @@ pipeline {
                         script {
                             deployToK8s('prod')
                         }
-                      }  
                     }
                 }
             }
         }
     }
 
-def deployToK8s(String namespace) {
-    sh """
-        rm -Rf .kube
-        mkdir .kube
-        cat \$KUBECONFIG > .kube/config
-        cp fastapi/values.yaml values.yml
-        sed -i "s+tag.*+tag: ${DOCKER_TAG}+g" values.yml
-        kubectl get namespace ${namespace} || kubectl create namespace ${namespace}
-        helm upgrade --install app fastapi --values=values.yml --namespace ${namespace}
-    """
+    def deployToK8s(String namespace) {
+        sh """
+            rm -Rf .kube
+            mkdir .kube
+            cat \$KUBECONFIG > .kube/config
+            cp fastapi/values.yaml values.yml
+            sed -i "s+tag.*+tag: ${DOCKER_TAG}+g" values.yml
+            kubectl get namespace ${namespace} || kubectl create namespace ${namespace}
+            helm upgrade --install app fastapi --values=values.yml --namespace ${namespace}
+        """
+    }
 }
