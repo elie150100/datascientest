@@ -73,12 +73,10 @@ pipeline {
                 }
                 stage('Deploy to Prod') {
                     steps {
-                        timeout(time: 15, unit: "MINUTES") {
-                            input message: 'Do you want to deploy in production?', ok: 'Yes'
-                        }
                         script {
                             deployToK8s('prod')
                         }
+                      }  
                     }
                 }
             }
