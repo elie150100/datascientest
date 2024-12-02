@@ -51,8 +51,8 @@ pipeline {
                 script {
                     sh '''
                         sleep 30
-                        curl -s localhost:8080/api/v1/movies/docs || echo "Movies service unavailable"
-                        curl -s localhost:8080/api/v1/casts/docs || echo "Casts service unavailable"
+                        curl -s localhost:8081/api/v1/movies/docs || echo "Movies service unavailable"
+                        curl -s localhost:8081/api/v1/casts/docs || echo "Casts service unavailable"
                     '''
                 }
             }
