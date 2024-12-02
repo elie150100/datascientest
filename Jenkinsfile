@@ -14,9 +14,9 @@ pipeline {
     agent any
     environment {
         DOCKER_COMPOSE_FILE = "${WORKSPACE}/docker-compose.yml"
-        DOCKER_ID = "eliedatasctst"
-        MOVIE_SERVICE_IMAGE = "${DOCKER_ID}/try/movie-service"
-        CAST_SERVICE_IMAGE = "${DOCKER_ID}/try/cast-service"
+        DOCKER_ID = "elie150100"
+        MOVIE_SERVICE_IMAGE = "${DOCKER_ID}/movie-service"
+        CAST_SERVICE_IMAGE = "${DOCKER_ID}/cast-service"
         DOCKER_TAG = "v.${BUILD_NUMBER}.0"
         DOCKER_CREDENTIALS = credentials('DOCKER_HUB_PASS')
     }
