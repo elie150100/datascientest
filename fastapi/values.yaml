@@ -6,12 +6,18 @@
 replicaCount: 1
 
 # This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/
-image:
-  repository: elie150100/movie-service
-  # This sets the pull policy for images.
-  pullPolicy: IfNotPresent
-  # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
+images:
+  castService:
+    repository: elie150100/cast-service
+    tag: "{{ .Chart.AppVersion }}"
+    pullPolicy: IfNotPresent
+  
+  movieService:
+    repository: elie150100/movie-service
+    tag: "{{ .Chart.AppVersion }}"  # Utilisation de la version du chart
+    pullPolicy: IfNotPresent
+
+
 
 # This is for the secretes for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
 imagePullSecrets: []
