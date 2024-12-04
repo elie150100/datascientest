@@ -20,12 +20,12 @@ pipeline {
                 sh "docker-compose -f ${DOCKER_COMPOSE_FILE} build"
                 script {
                     sh """
-                        docker login -u ${DOCKER_ID} -p ${DOCKER_CREDENTIALS}
-                        docker tag movie_service ${MOVIE_SERVICE_IMAGE}:${DOCKER_TAG}
-                        docker tag cast_service ${CAST_SERVICE_IMAGE}:${DOCKER_TAG}
-                        docker push ${MOVIE_SERVICE_IMAGE}:v.7.0
+                       docker login -u ${DOCKER_ID} -p ${DOCKER_CREDENTIALS}
+                        docker tag exam4_movie_service:latest ${MOVIE_SERVICE_IMAGE}:${DOCKER_TAG}
+                        docker tag exam4_cast_service:latest ${CAST_SERVICE_IMAGE}:${DOCKER_TAG}
+                        docker push ${MOVIE_SERVICE_IMAGE}:${DOCKER_TAG}
                         docker push ${CAST_SERVICE_IMAGE}:${DOCKER_TAG}
-                    """
+                    """    
                 }
             }
         }
