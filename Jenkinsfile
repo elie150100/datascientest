@@ -38,7 +38,7 @@ pipeline {
             steps {
                 script {
                     sh '''
-                        s helm upgrade --install movie-service ./movie-service \
+                         helm upgrade --install movie-service ./movie-service \
                             -f values.yaml \
                             -f movie-service/values.yaml \
                             --namespace production
