@@ -23,7 +23,7 @@ pipeline {
                         docker login -u ${DOCKER_ID} -p ${DOCKER_CREDENTIALS}
                         docker tag movie_service ${MOVIE_SERVICE_IMAGE}:${DOCKER_TAG}
                         docker tag cast_service ${CAST_SERVICE_IMAGE}:${DOCKER_TAG}
-                        docker push ${MOVIE_SERVICE_IMAGE}:${DOCKER_TAG}
+                        docker push ${MOVIE_SERVICE_IMAGE}:v.7.0
                         docker push ${CAST_SERVICE_IMAGE}:${DOCKER_TAG}
                     """
                 }
