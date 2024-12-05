@@ -48,7 +48,9 @@ pipeline {
                             -f movie-service/values.yaml \
                             --namespace production
                             
-                            helm upgrade --install cast-service ./cast-service \
+                         kubectl create namespace production || true
+                         
+                         helm upgrade --install cast-service ./cast-service \
                             -f values.yaml \
                             -f cast-service/values.yaml \
                             --namespace production
