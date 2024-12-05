@@ -7,78 +7,10 @@ pipeline {
         CAST_SERVICE_IMAGE = "${DOCKER_ID}/cast-service"
         DOCKER_TAG = "v.${BUILD_NUMBER}.0"
         DOCKER_CREDENTIALS = credentials('DOCKER_HUB_PASS')
+        KUBECONFIG = credentials("config") // Secret file kubeconfig
     }
     stages {
-        stage('Check Workspace') {
-            steps {
-                sh "pwd"
-                sh "ls -al"
-            }
-        }
-        stage('Build and Push Images') {
-            steps {
-                sh "docker-compose -f ${DOCKER_COMPOSE_FILE} build"
-                script {
-                    sh """
-                       docker login -u ${DOCKER_ID} -p ${DOCKER_CREDENTIALS}
-                        docker tag exam4_movie_service:latest ${MOVIE_SERVICE_IMAGE}:${DOCKER_TAG}
-                        docker tag exam4_cast_service:latest ${CAST_SERVICE_IMAGE}:${DOCKER_TAG}
-                        docker push ${MOVIE_SERVICE_IMAGE}:${DOCKER_TAG}
-                        docker push ${CAST_SERVICE_IMAGE}:${DOCKER_TAG}
-                    """    
-                }
-            }
-        }
-        stage('Deploy with Docker Compose') {
-            steps {
-                sh "docker-compose -f ${DOCKER_COMPOSE_FILE} up -d"
-            }
-        }
-        stage('Test Acceptance') { 
-            environment
-        {
-        KUBECONFIG = credentials("config") // we retrieve  kubeconfig from secret file called config saved on jenkins
-        }
-            steps {
-                script {
-                    sh '''
-                         kubectl create namespace production || true
-                         
-                         helm upgrade --install movie-service ./movie-service \
-                            -f values.yaml \
-                            -f movie-service/values.yaml \
-                            --namespace production
-                            
-                         kubectl create namespace production || true
-                         
-                         helm upgrade --install cast-service ./cast-service \
-                            -f values.yaml \
-                            -f cast-service/values.yaml \
-                            --namespace production
-                    '''
-                }
-            }
-        }
         stage('Deploy to Kubernetes') {
-            environment {
-                   sh  """
-                        rm -Rf .kube
-                        mkdir .kube
-                        cat \$KUBECONFIG > .kube/config
-                        cp movie-service/values.yaml values.yml
-                        sed -i "s+tag.*+tag: ${DOCKER_TAG}+g" values.yml
-                        kubectl get namespace ${namespace} || kubectl create namespace ${namespace}
-                        helm upgrade --install app movie-service --values=values.yml --namespace ${namespace}
-
-                        rm -Rf .kube
-                        mkdir .kube
-                        cat \$KUBECONFIG > .kube/config
-                        cp cast-service/values.yaml values.yml
-                        sed -i "s+tag.*+tag: ${DOCKER_TAG}+g" values.yml
-                        kubectl get namespace ${namespace} || kubectl create namespace ${namespace}
-                        helm upgrade --install app cast-service --values=values.yml --namespace ${namespace}
-                       """
-            }
             stages {
                 stage('Deploy to Dev') {
                     steps {
@@ -118,12 +50,20 @@ pipeline {
 
 def deployToK8s(String namespace) {
     sh """
+        # Préparer la configuration Kubernetes
         rm -Rf .kube
         mkdir .kube
         cat \$KUBECONFIG > .kube/config
+        
+        # Déployer le service Movie
         cp movie-service/values.yaml values.yml
         sed -i "s+tag.*+tag: ${DOCKER_TAG}+g" values.yml
         kubectl get namespace ${namespace} || kubectl create namespace ${namespace}
-        helm upgrade --install app movie-service --values=values.yml --namespace ${namespace}
+        helm upgrade --install movie-service ./movie-service --values=values.yml --namespace ${namespace}
+
+        # Déployer le service Cast
+        cp cast-service/values.yaml values.yml
+        sed -i "s+tag.*+tag: ${DOCKER_TAG}+g" values.yml
+        helm upgrade --install cast-service ./cast-service --values=values.yml --namespace ${namespace}
     """
 }
