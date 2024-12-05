@@ -34,7 +34,8 @@ pipeline {
                 sh "docker-compose -f ${DOCKER_COMPOSE_FILE} up -d"
             }
         }
-        stage('Test Acceptance') { environment
+        stage('Test Acceptance') { 
+            environment
         {
         KUBECONFIG = credentials("config") // we retrieve  kubeconfig from secret file called config saved on jenkins
         }
