@@ -60,7 +60,23 @@ pipeline {
         }
         stage('Deploy to Kubernetes') {
             environment {
-                KUBECONFIG = credentials("config")
+                   sh  """
+                        rm -Rf .kube
+                        mkdir .kube
+                        cat \$KUBECONFIG > .kube/config
+                        cp movie-service/values.yaml values.yml
+                        sed -i "s+tag.*+tag: ${DOCKER_TAG}+g" values.yml
+                        kubectl get namespace ${namespace} || kubectl create namespace ${namespace}
+                        helm upgrade --install app movie-service --values=values.yml --namespace ${namespace}
+
+                        rm -Rf .kube
+                        mkdir .kube
+                        cat \$KUBECONFIG > .kube/config
+                        cp cast-service/values.yaml values.yml
+                        sed -i "s+tag.*+tag: ${DOCKER_TAG}+g" values.yml
+                        kubectl get namespace ${namespace} || kubectl create namespace ${namespace}
+                        helm upgrade --install app cast-service --values=values.yml --namespace ${namespace}
+                       """
             }
             stages {
                 stage('Deploy to Dev') {
