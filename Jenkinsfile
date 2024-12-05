@@ -41,6 +41,8 @@ pipeline {
             steps {
                 script {
                     sh '''
+                         kubectl create namespace production || true
+                         
                          helm upgrade --install movie-service ./movie-service \
                             -f values.yaml \
                             -f movie-service/values.yaml \
